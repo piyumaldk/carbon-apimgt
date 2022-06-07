@@ -2802,6 +2802,82 @@ paths:
           "https://127.0.0.1:9443/api/am/admin/v3/tenant-config-schema" > tenant-config-schema.json'
 
   ######################################################
+  # The Self Sign up config resource APIs
+  ######################################################
+  /self-sign-up-config:
+    get:
+      tags:
+        - Self Sign Up Config
+      summary: Export a self-sign-up-Config.
+      description: |
+        This operation can be used to export a self-sign-up-config.xml used in deployment.
+      operationId: exportSelfSignUpConfig
+      responses:
+        200:
+          description: |
+            OK.
+            Self Sign up config Exported Successfully.
+          headers:
+            Content-Type:
+              description: |
+                The content type of the body.
+              schema:
+                type: string
+          content:
+            application/xml:
+              schema:
+                type: string
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - OAuth2Security:
+            - apim:admin
+      x-code-samples:
+        - lang: Shell
+          source: 'curl -k -H "Authorization: Bearer ae4eae22-3f65-387b-a171-d37eaa366fa8"
+          "https://127.0.0.1:9443/api/am/admin/v3/self-sign-up-config" > self-sign-up-config.xml'
+    put:
+      tags:
+        - Self Sign Up Config
+      summary: Update a self-sign-up-config.
+      description: |
+        This operation can be used to update self-sign-up-config.
+      operationId: updateSelfSignUpConfig
+      requestBody:
+        description: self-sign-up-config
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        200:
+          description: |
+            OK.
+            Self Sign up config Edited Successfully.
+          content:
+            application/xml:
+              schema:
+                type: object
+        403:
+          $ref: '#/components/responses/Forbidden'
+        413:
+          $ref: '#/components/responses/PayloadTooLarge'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - OAuth2Security:
+            - apim:admin
+      x-code-samples:
+        - lang: Shell
+          source: 'curl -k -X PUT -H "Authorization: Bearer ae4eae22-3f65-387b-a171-d37eaa366fa8"
+           "https://127.0.0.1:9443/api/am/admin/v3/self-sign-up-config"'
+
+  ######################################################
   # The "Key Manager Collection" resource API
   ######################################################
   /key-managers:
