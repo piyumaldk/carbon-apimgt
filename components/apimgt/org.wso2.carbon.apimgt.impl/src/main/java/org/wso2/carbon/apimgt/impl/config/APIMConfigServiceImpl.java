@@ -388,29 +388,7 @@ public class APIMConfigServiceImpl implements APIMConfigService {
         if (organization == null) {
             organization = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(organization, true);
-            int tenantId = APIUtil.getTenantIdFromTenantDomain(organization);
-            if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(organization)) {
-                APIUtil.loadTenantRegistry(tenantId);
-            }
-            UserRegistry registry = ServiceReferenceHolder.getInstance().getRegistryService()
-                    .getGovernanceSystemRegistry(tenantId);
-            if (registry.resourceExists(APIConstants.SELF_SIGN_UP_CONFIG_LOCATION)) {
-                Resource resource = registry.get(APIConstants.SELF_SIGN_UP_CONFIG_LOCATION);
-                return new String((byte[]) resource.getContent(), Charset.defaultCharset());
-            } else {
-                return null;
-            }
-
-        } catch (RegistryException e) {
-            String msg = "Error while retrieving Self-SignUp Configuration from registry";
-            log.error(msg, e);
-            throw new APIManagementException(msg, e);
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
+        return systemConfigurationsDAO.getSystemConfig(organization, ConfigType.SELF_SIGNUP.toString());
     }
 
     @Override
@@ -419,29 +397,10 @@ public class APIMConfigServiceImpl implements APIMConfigService {
         if (organization == null) {
             organization = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(organization, true);
-            int tenantId = APIUtil.getTenantIdFromTenantDomain(organization);
-            if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(organization)) {
-                APIUtil.loadTenantRegistry(tenantId);
-            }
-            UserRegistry registry = ServiceReferenceHolder.getInstance().getRegistryService()
-                    .getGovernanceSystemRegistry(tenantId);
-            if (registry.resourceExists(APIConstants.SELF_SIGN_UP_CONFIG_LOCATION)) {
-                byte[] data = IOUtils.toByteArray(new StringReader(selfSignUpConfig));
-                Resource resource = registry.get(APIConstants.SELF_SIGN_UP_CONFIG_LOCATION);
-                resource.setContent(data);
-                resource.setMediaType(APIConstants.SELF_SIGN_UP_CONFIG_MEDIA_TYPE);
-                registry.put(APIConstants.SELF_SIGN_UP_CONFIG_LOCATION, resource);
-            }
-        } catch (RegistryException | IOException e) {
-            String msg = "Error while updating Self-SignUp Configuration from registry";
-            log.error(msg, e);
-            throw new APIManagementException(msg, e);
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
+        Cache tenantConfigCache = CacheProvider.getTenantConfigCache();
+        String cacheName = organization + "_" + APIConstants.TENANT_CONFIG_CACHE_NAME;
+        tenantConfigCache.remove(cacheName);
+        systemConfigurationsDAO.updateSystemConfig(organization, ConfigType.SELF_SIGNUP.toString(), selfSignUpConfig);
     }
 
     @Override
@@ -450,28 +409,6 @@ public class APIMConfigServiceImpl implements APIMConfigService {
         if (organization == null) {
             organization = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(organization, true);
-            int tenantId = APIUtil.getTenantIdFromTenantDomain(organization);
-            if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(organization)) {
-                APIUtil.loadTenantRegistry(tenantId);
-            }
-            UserRegistry registry = ServiceReferenceHolder.getInstance().getRegistryService()
-                    .getGovernanceSystemRegistry(tenantId);
-            if (!registry.resourceExists(APIConstants.SELF_SIGN_UP_CONFIG_LOCATION)) {
-                byte[] data = IOUtils.toByteArray(new StringReader(selfSignUpConfig));
-                Resource resource = registry.newResource();
-                resource.setContent(data);
-                resource.setMediaType(APIConstants.SELF_SIGN_UP_CONFIG_MEDIA_TYPE);
-                registry.put(APIConstants.SELF_SIGN_UP_CONFIG_LOCATION, resource);
-            }
-        } catch (RegistryException | IOException e) {
-            String msg = "Error while adding Self-SignUp Configuration from registry";
-            log.error(msg, e);
-            throw new APIManagementException(msg, e);
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
+        systemConfigurationsDAO.addSystemConfig(organization, ConfigType.SELF_SIGNUP.toString(), selfSignUpConfig);
     }
 }
