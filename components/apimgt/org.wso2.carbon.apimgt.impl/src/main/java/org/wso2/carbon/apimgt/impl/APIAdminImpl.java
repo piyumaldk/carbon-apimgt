@@ -1284,6 +1284,16 @@ public class APIAdminImpl implements APIAdmin {
     }
 
     @Override
+    public String getSelfSignUpConfig(String organization) throws APIManagementException {
+        return ServiceReferenceHolder.getInstance().getApimConfigService().getSelfSighupConfig(organization);
+    }
+
+    @Override
+    public void updateSelfSignUpConfig(String organization, String config) throws APIManagementException {
+        ServiceReferenceHolder.getInstance().getApimConfigService().updateSelfSighupConfig(organization, config);
+    }
+
+    @Override
     public Policy[] getPolicies(int tenantId, String level) throws APIManagementException {
 
         Policy[] policies = null;

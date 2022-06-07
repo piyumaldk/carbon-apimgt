@@ -452,6 +452,10 @@ public interface APIAdmin  {
 
     void updateTenantConfig(String organization, String config) throws APIManagementException;
 
+    String getSelfSignUpConfig(String organization) throws APIManagementException;
+
+    void updateSelfSignUpConfig(String organization, String config) throws APIManagementException;
+
     String getTenantConfigSchema(String organization) throws APIManagementException;
 
     /**
