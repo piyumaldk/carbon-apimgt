@@ -3749,21 +3749,23 @@ public final class APIUtil {
             throws APIManagementException {
 
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Adding Self signup configuration to the tenant's registry");
+            String currentConfig = ServiceReferenceHolder.getInstance().getApimConfigService().getSelfSighupConfig(organization);
+            if (currentConfig == null){
+                if (log.isDebugEnabled()) {
+                    log.debug("Adding Self signup configuration to the database");
+                }
+                InputStream inputStream;
+                if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(organization)) {
+                    inputStream =
+                            APIManagerComponent.class.getResourceAsStream("/signupconfigurations/default-sign-up-config" +
+                                    ".xml");
+                } else {
+                    inputStream =
+                            APIManagerComponent.class.getResourceAsStream("/signupconfigurations/tenant-sign-up-config" +
+                                    ".xml");
+                }
+                ServiceReferenceHolder.getInstance().getApimConfigService().addSelfSighupConfig(organization, IOUtils.toString(inputStream));
             }
-            InputStream inputStream;
-            if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(organization)) {
-                inputStream =
-                        APIManagerComponent.class.getResourceAsStream("/signupconfigurations/default-sign-up-config" +
-                                ".xml");
-            } else {
-                inputStream =
-                        APIManagerComponent.class.getResourceAsStream("/signupconfigurations/tenant-sign-up-config" +
-                                ".xml");
-            }
-
-            ServiceReferenceHolder.getInstance().getApimConfigService().addSelfSighupConfig(organization, IOUtils.toString(inputStream));
         } catch (IOException  e) {
             throw new APIManagementException("Error while reading Self signup configuration file content", e);
         }

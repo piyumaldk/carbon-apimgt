@@ -397,9 +397,9 @@ public class APIMConfigServiceImpl implements APIMConfigService {
         if (organization == null) {
             organization = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
-        Cache tenantConfigCache = CacheProvider.getTenantConfigCache();
-        String cacheName = organization + "_" + APIConstants.TENANT_CONFIG_CACHE_NAME;
-        tenantConfigCache.remove(cacheName);
+        Cache selfSignUpConfigCache = CacheProvider.getSelfSignUpConfigCache();
+        String cacheName = organization + "_" + APIConstants.SELF_SIGNUP_CONFIG_CACHE_NAME;
+        selfSignUpConfigCache.remove(cacheName);
         systemConfigurationsDAO.updateSystemConfig(organization, ConfigType.SELF_SIGNUP.toString(), selfSignUpConfig);
     }
 
@@ -409,6 +409,15 @@ public class APIMConfigServiceImpl implements APIMConfigService {
         if (organization == null) {
             organization = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
-        systemConfigurationsDAO.addSystemConfig(organization, ConfigType.SELF_SIGNUP.toString(), selfSignUpConfig);
+        try {
+            String data = new String((byte[]) IOUtils.toByteArray(new StringReader(selfSignUpConfig)), Charset.defaultCharset());
+            systemConfigurationsDAO.addSystemConfig(organization, ConfigType.SELF_SIGNUP.toString(), data);
+        } catch (IOException e) {
+            String msg = "Error while adding Self-SignUp Configuration from registry";
+            log.error(msg, e);
+            throw new APIManagementException(msg, e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
     }
 }

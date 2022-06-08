@@ -163,6 +163,9 @@ public class CacheProvider {
         return getCache(APIConstants.TENANT_CONFIG_CACHE_NAME);
     }
 
+    public static Cache getSelfSignUpConfigCache() {
+        return getCache(APIConstants.SELF_SIGNUP_CONFIG_CACHE_NAME);
+    }
     /**
      * @return Product REST API scope cache
      */

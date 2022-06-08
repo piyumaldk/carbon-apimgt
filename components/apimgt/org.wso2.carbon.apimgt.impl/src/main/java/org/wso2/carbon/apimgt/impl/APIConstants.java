@@ -102,7 +102,7 @@ public final class APIConstants {
 
     public static final String API_TENANT_CONF_MEDIA_TYPE = "tenant-config";
     public static final String TENANT_CONFIG_CACHE_NAME = "tenantConfigCache";
-
+    public static final String SELF_SIGNUP_CONFIG_CACHE_NAME = "selfSignUpConfigCache";
     public static final String API_MAX_REVISION_COUNT_PROPERTY_NAME = "ApiMaxRevisionCount";
 
     public static final String RESOURCE_FOLDER_LOCATION = "repository" + File.separator + "resources";
