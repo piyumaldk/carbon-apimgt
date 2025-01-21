@@ -1045,6 +1045,11 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
             recommendationThread.start();
         }
 
+        // Update API in new Dev Portal
+        if (APIUtil.isNewPortalEnabled() && APIConstants.PUBLISHED.equals(api.getStatus())) {
+            APIPublisherForNewPortal.update(organization, new ApiTypeWrapper(api));
+        }
+
         return api;
     }
 
