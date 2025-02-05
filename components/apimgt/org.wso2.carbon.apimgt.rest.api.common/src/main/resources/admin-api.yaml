@@ -3082,6 +3082,188 @@ paths:
           -F file=@theme.zip "https://127.0.0.1:9443/api/am/admin/v4/tenant-theme"'
 
   ######################################################
+  # The HBS Theme resource APIs for New Dev Portal
+  ######################################################
+  /drafted-org-content:
+    get:
+      tags:
+        - Organization Theme
+      summary: Export a drafted zip of Org Theme
+      description: |
+        This operation can be used to export a drafted new DevPortal organization theme as a zip file.
+      operationId: getDraftedOrgContent
+      responses:
+        200:
+          description: |
+            OK.
+            Theme exported Successfully.
+          headers:
+            Content-Type:
+              description: |
+                The content type of the body.
+              schema:
+                type: string
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - OAuth2Security:
+            - apim:admin
+            - apim:tenant_theme_manage
+      x-code-samples:
+        - lang: Curl
+          source: 'curl -k -H "Authorization: Bearer ae4eae22-3f65-387b-a171-d37eaa366fa8"
+          "https://127.0.0.1:9443/api/am/admin/v4/drafted-org-content" > orgName.zip'
+
+    put:
+      tags:
+        - Organization Theme
+      summary: Import a drafted zip of Org Theme
+      description: |
+        This operation can be used to update a drafted zip of Organization Theme
+      operationId: updateDraftedOrgContent
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  description: |
+                    Zip archive consisting of hbs and related files
+                  format: binary
+        required: true
+      responses:
+        200:
+          description: |
+            Ok.
+            Theme Imported Successfully.
+          content: {}
+        403:
+          $ref: '#/components/responses/Forbidden'
+        413:
+          $ref: '#/components/responses/PayloadTooLarge'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - OAuth2Security:
+            - apim:admin
+            - apim:tenant_theme_manage
+      x-code-samples:
+        - lang: Curl
+          source: 'curl -k -X PUT -H "Authorization: Bearer ae4eae22-3f65-387b-a171-d37eaa366fa8"
+          -F file=@theme.zip "https://127.0.0.1:9443/api/am/admin/v4/drafted-org-content"'
+
+    delete:
+      tags:
+        - Organization Theme
+      summary: Delete a drafted Org Theme
+      description: |
+        This operation deletes the currently drafted Organization Theme.
+      operationId: deleteDraftedOrgContent
+      responses:
+        200:
+          description: |
+            Ok.
+            Drafted Theme Deleted Successfully.
+          content: { }
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - OAuth2Security:
+            - apim:admin
+            - apim:tenant_theme_manage
+      x-code-samples:
+        - lang: Curl
+          source: 'curl -k -X DELETE -H "Authorization: Bearer ae4eae22-3f65-387b-a171-d37eaa366fa8"
+          "https://127.0.0.1:9443/api/am/admin/v4/drafted-org-content"'
+
+  /published-org-content:
+    post:
+      tags:
+        - Organization Theme
+      summary: Publish an Org Theme
+      description: |
+        This operation can be used to publish a new DevPortal organization theme by uploading a zip file.
+      operationId: publishOrgContent
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  description: |
+                    Zip archive consisting of hbs and related files to be published.
+                  format: binary
+        required: true
+      responses:
+        200:
+          description: |
+            Ok.
+            Theme Published Successfully.
+          content: {}
+        403:
+          $ref: '#/components/responses/Forbidden'
+        413:
+          $ref: '#/components/responses/PayloadTooLarge'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - OAuth2Security:
+            - apim:admin
+            - apim:tenant_theme_manage
+      x-code-samples:
+        - lang: Curl
+          source: 'curl -k -X POST -H "Authorization: Bearer ae4eae22-3f65-387b-a171-d37eaa366fa8"
+          -F file=@theme.zip "https://127.0.0.1:9443/api/am/admin/v4/published-org-content"'
+
+    delete:
+      tags:
+        - Organization Theme
+      summary: Un-publish an Org Theme
+      description: |
+        This operation removes the currently published organization theme from the DevPortal.
+      operationId: unPublishOrgContent
+      responses:
+        200:
+          description: |
+            Ok.
+            Published Theme Unpublished Successfully.
+          content: {}
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - OAuth2Security:
+            - apim:admin
+            - apim:tenant_theme_manage
+      x-code-samples:
+        - lang: Curl
+          source: 'curl -k -X DELETE -H "Authorization: Bearer ae4eae22-3f65-387b-a171-d37eaa366fa8"
+          "https://127.0.0.1:9443/api/am/admin/v4/published-org-content"'
+
+
+  ######################################################
   # The Tenant config resource APIs
   ######################################################
   /tenant-config:

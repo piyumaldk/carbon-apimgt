@@ -292,6 +292,21 @@ public class ApisApiServiceImpl implements ApisApiService {
     }
 
     @Override
+    public Response apisApiIdDraftedApiContentDelete(String apiId, MessageContext messageContext) throws APIManagementException {return null;}
+
+    @Override
+    public Response apisApiIdDraftedApiContentGet(String apiId, MessageContext messageContext) throws APIManagementException {return null;}
+
+    @Override
+    public Response apisApiIdDraftedApiContentPut(String apiId, InputStream fileInputStream, Attachment fileDetail, MessageContext messageContext) throws APIManagementException {return null;}
+
+    @Override
+    public Response apisApiIdPublishedApiContentDelete(String apiId, MessageContext messageContext) throws APIManagementException {return null;};
+
+    @Override
+    public Response apisApiIdPublishedApiContentPost(String apiId, InputStream fileInputStream, Attachment fileDetail, MessageContext messageContext) throws APIManagementException {return null;};
+
+    @Override
     public Response getAllCommentsOfAPI(String apiId, String xWSO2Tenant, Integer limit, Integer offset, Boolean
             includeCommenterInfo, MessageContext messageContext) throws APIManagementException {
         String requestedTenantDomain = RestApiUtil.getRequestedTenantDomain(xWSO2Tenant);

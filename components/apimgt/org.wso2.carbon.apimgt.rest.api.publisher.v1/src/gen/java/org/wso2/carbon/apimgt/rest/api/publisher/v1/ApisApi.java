@@ -262,6 +262,63 @@ ApisApiService delegate = new ApisApiServiceImpl();
         return delegate.apisApiIdAsyncapiPut(apiId, ifMatch, apiDefinition, url, fileInputStream, fileDetail, securityContext);
     }
 
+    @DELETE
+    @Path("/{apiId}/drafted-api-content")
+    
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Delete a drafted API zip", notes = "This operation deletes the currently drafted API content. ", response = Void.class, authorizations = {
+        @Authorization(value = "OAuth2Security", scopes = {
+            @AuthorizationScope(scope = "apim:api_create", description = "Create API"),
+            @AuthorizationScope(scope = "apim:api_manage", description = "Manage all API related operations")
+        })
+    }, tags={ "API Content",  })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "OK. Drafted API content deleted successfully. ", response = Void.class),
+        @ApiResponse(code = 403, message = "Forbidden. The request must be conditional but no condition has been specified.", response = ErrorDTO.class),
+        @ApiResponse(code = 404, message = "Not Found. The specified resource does not exist.", response = ErrorDTO.class),
+        @ApiResponse(code = 500, message = "Internal Server Error.", response = ErrorDTO.class) })
+    public Response apisApiIdDraftedApiContentDelete(@ApiParam(value = "**API ID** consisting of the **UUID** of the API. ",required=true) @PathParam("apiId") String apiId) throws APIManagementException{
+        return delegate.apisApiIdDraftedApiContentDelete(apiId, securityContext);
+    }
+
+    @GET
+    @Path("/{apiId}/drafted-api-content")
+    
+    @Produces({ "application/zip", "application/json" })
+    @ApiOperation(value = "Export a drafted API zip", notes = "This operation can be used to export a drafted API content as a zip file. ", response = File.class, authorizations = {
+        @Authorization(value = "OAuth2Security", scopes = {
+            @AuthorizationScope(scope = "apim:api_create", description = "Create API"),
+            @AuthorizationScope(scope = "apim:api_manage", description = "Manage all API related operations")
+        })
+    }, tags={ "API Content",  })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "OK. API content exported successfully. ", response = File.class),
+        @ApiResponse(code = 403, message = "Forbidden. The request must be conditional but no condition has been specified.", response = ErrorDTO.class),
+        @ApiResponse(code = 404, message = "Not Found. The specified resource does not exist.", response = ErrorDTO.class),
+        @ApiResponse(code = 500, message = "Internal Server Error.", response = ErrorDTO.class) })
+    public Response apisApiIdDraftedApiContentGet(@ApiParam(value = "**API ID** consisting of the **UUID** of the API. ",required=true) @PathParam("apiId") String apiId) throws APIManagementException{
+        return delegate.apisApiIdDraftedApiContentGet(apiId, securityContext);
+    }
+
+    @PUT
+    @Path("/{apiId}/drafted-api-content")
+    @Consumes({ "multipart/form-data" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Import a drafted API zip", notes = "This operation can be used to import a drafted API content as a zip file. ", response = Void.class, authorizations = {
+        @Authorization(value = "OAuth2Security", scopes = {
+            @AuthorizationScope(scope = "apim:api_create", description = "Create API"),
+            @AuthorizationScope(scope = "apim:api_manage", description = "Manage all API related operations")
+        })
+    }, tags={ "API Content",  })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "OK. API content imported successfully. ", response = Void.class),
+        @ApiResponse(code = 403, message = "Forbidden. The request must be conditional but no condition has been specified.", response = ErrorDTO.class),
+        @ApiResponse(code = 413, message = "", response = Void.class),
+        @ApiResponse(code = 500, message = "Internal Server Error.", response = ErrorDTO.class) })
+    public Response apisApiIdDraftedApiContentPut(@ApiParam(value = "**API ID** consisting of the **UUID** of the API. ",required=true) @PathParam("apiId") String apiId,  @Multipart(value = "file") InputStream fileInputStream, @Multipart(value = "file" ) Attachment fileDetail) throws APIManagementException{
+        return delegate.apisApiIdDraftedApiContentPut(apiId, fileInputStream, fileDetail, securityContext);
+    }
+
     @GET
     @Path("/{apiId}/environments/{envId}/keys")
     
@@ -298,6 +355,44 @@ ApisApiService delegate = new ApisApiServiceImpl();
         @ApiResponse(code = 404, message = "Not Found. The specified resource does not exist.", response = ErrorDTO.class) })
     public Response apisApiIdEnvironmentsEnvIdKeysPut(@ApiParam(value = "**API ID** consisting of the **UUID** of the API. ",required=true) @PathParam("apiId") String apiId, @ApiParam(value = "**Env ID** consisting of the **UUID** of the gateway environment. ",required=true) @PathParam("envId") String envId, @ApiParam(value = "" ,required=true) Map<String, String> requestBody) throws APIManagementException{
         return delegate.apisApiIdEnvironmentsEnvIdKeysPut(apiId, envId, requestBody, securityContext);
+    }
+
+    @DELETE
+    @Path("/{apiId}/published-api-content")
+    
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Unpublish API content", notes = "This operation removes the currently published API content from the DevPortal. ", response = Void.class, authorizations = {
+        @Authorization(value = "OAuth2Security", scopes = {
+            @AuthorizationScope(scope = "apim:api_create", description = "Create API"),
+            @AuthorizationScope(scope = "apim:api_manage", description = "Manage all API related operations")
+        })
+    }, tags={ "API Content",  })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "OK. Published API content unpublished successfully. ", response = Void.class),
+        @ApiResponse(code = 403, message = "Forbidden. The request must be conditional but no condition has been specified.", response = ErrorDTO.class),
+        @ApiResponse(code = 404, message = "Not Found. The specified resource does not exist.", response = ErrorDTO.class),
+        @ApiResponse(code = 500, message = "Internal Server Error.", response = ErrorDTO.class) })
+    public Response apisApiIdPublishedApiContentDelete(@ApiParam(value = "**API ID** consisting of the **UUID** of the API. ",required=true) @PathParam("apiId") String apiId) throws APIManagementException{
+        return delegate.apisApiIdPublishedApiContentDelete(apiId, securityContext);
+    }
+
+    @POST
+    @Path("/{apiId}/published-api-content")
+    @Consumes({ "multipart/form-data" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Publish API content", notes = "This operation can be used to publish API content to the DevPortal. ", response = Void.class, authorizations = {
+        @Authorization(value = "OAuth2Security", scopes = {
+            @AuthorizationScope(scope = "apim:api_create", description = "Create API"),
+            @AuthorizationScope(scope = "apim:api_manage", description = "Manage all API related operations")
+        })
+    }, tags={ "API Content",  })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "OK. API content published successfully. ", response = Void.class),
+        @ApiResponse(code = 403, message = "Forbidden. The request must be conditional but no condition has been specified.", response = ErrorDTO.class),
+        @ApiResponse(code = 413, message = "", response = Void.class),
+        @ApiResponse(code = 500, message = "Internal Server Error.", response = ErrorDTO.class) })
+    public Response apisApiIdPublishedApiContentPost(@ApiParam(value = "**API ID** consisting of the **UUID** of the API. ",required=true) @PathParam("apiId") String apiId,  @Multipart(value = "file") InputStream fileInputStream, @Multipart(value = "file" ) Attachment fileDetail) throws APIManagementException{
+        return delegate.apisApiIdPublishedApiContentPost(apiId, fileInputStream, fileDetail, securityContext);
     }
 
     @POST
