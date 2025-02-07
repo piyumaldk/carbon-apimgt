@@ -4633,6 +4633,31 @@ public class ApisApiServiceImpl implements ApisApiService {
         return Response.ok().entity(jsonContent).build();
     }
 
+    @Override
+    public Response deleteApiTheme(String apiId, String id, MessageContext messageContext) throws APIManagementException {
+        return null;
+    }
+
+    @Override
+    public Response getApiThemeContent(String apiId, String id, MessageContext messageContext) throws APIManagementException {
+        return null;
+    }
+
+    @Override
+    public Response getApiThemes(String apiId, MessageContext messageContext) throws APIManagementException {
+        return null;
+    }
+
+    @Override
+    public Response importApiTheme(String apiId, InputStream fileInputStream, Attachment fileDetail, MessageContext messageContext) throws APIManagementException {
+        return null;
+    }
+
+    @Override
+    public Response updateApiThemeStatus(String apiId, String id, ContentPublishStatusDTO contentPublishStatusDTO, MessageContext messageContext) throws APIManagementException {
+        return null;
+    }
+
     private void validateEnvironment(String organization, String envId) throws APIManagementException {
         APIProvider apiProvider = RestApiCommonUtil.getLoggedInUserProvider();
         // if apiProvider.getEnvironment(organization, envId) return null, it will throw an exception
