@@ -479,6 +479,10 @@ public interface APIAdmin  {
 
     void updateTenantConfig(String organization, String config) throws APIManagementException;
 
+    InputStream getOrgTheme(String uuid, String organization) throws APIManagementException;
+
+    Map<String, String> getOrgThemes(String organization) throws APIManagementException;
+
     String getTenantConfigSchema(String organization);
 
     /**
