@@ -16702,9 +16702,9 @@ public class ApiMgtDAO {
     /**
      * Imports a drafted organization theme for the given organization.
      *
-     * @param organization the organization name
-     * @param themeContent the theme content as InputStream
-     * @throws APIManagementException if a database error occurs
+     * @param organization Organization name.
+     * @param themeContent Theme content as InputStream.
+     * @throws APIManagementException If a database error occurs.
      */
     public void importDraftedOrgTheme(String organization, InputStream themeContent) throws APIManagementException {
         try (Connection connection = APIMgtDBUtil.getConnection()) {
@@ -16722,16 +16722,16 @@ public class ApiMgtDAO {
             }
             connection.commit();
         } catch (SQLException e) {
-            handleError("Failed to import drafted organization theme for tenant " + organization, e);
+            handleException("Failed to import drafted organization theme for tenant " + organization, e);
         }
     }
 
     /**
      * Updates the organization theme status as published or unpublished.
      *
-     * @param organization the organization name
-     * @param action       the action to perform ("PUBLISH" or "UNPUBLISH")
-     * @throws APIManagementException if a database error occurs
+     * @param organization Organization name.
+     * @param action       Action to perform ("PUBLISH" or "UNPUBLISH").
+     * @throws APIManagementException If a database error occurs.
      */
     public void updateOrgThemeStatusAsPublishedOrUnpublished(String organization, String action) throws APIManagementException {
         try (Connection connection = APIMgtDBUtil.getConnection()) {
@@ -16759,38 +16759,39 @@ public class ApiMgtDAO {
             }
             connection.commit();
         } catch (SQLException e) {
-            handleError("Failed to update organization theme status for tenant " + organization, e);
+            handleException("Failed to update organization theme status for tenant " + organization, e);
         }
     }
 
     /**
      * Deletes an organization theme.
      *
-     * @param organization the organization name
-     * @param themeId      the theme ID to delete
-     * @throws APIManagementException if a database error occurs
+     * @param organization Organization name.
+     * @param themeId      Theme ID to delete.
+     * @throws APIManagementException If a database error occurs.
      */
     public void deleteOrgTheme(String organization, String themeId) throws APIManagementException {
         try (Connection connection = APIMgtDBUtil.getConnection()) {
             connection.setAutoCommit(false);
             if (isThemeUsedByOrg(connection, organization, themeId)) {
                 removeArtifact(connection, themeId); // Due to DB rules, foreign ID will also set to NULL
-                removeOrgIfNoData(connection, organization, themeId);
+                removeOrgIfNoData(connection, organization);
             } else {
                 log.warn("User's organization does not use the theme. Aborting the request");
             }
             connection.commit();
         } catch (SQLException e) {
-            handleError("Failed to delete organization theme for tenant " + organization, e);
+            handleException("Failed to delete organization theme for tenant " + organization, e);
         }
     }
 
     /**
      * Gets an organization theme.
      *
-     * @param themeId      the theme ID to delete
-     * @param organization the organization name
-     * @throws APIManagementException if a database error occurs
+     * @param themeId      Theme ID to retrieve.
+     * @param organization Organization name.
+     * @return Input stream of Org theme.
+     * @throws APIManagementException If a database error occurs.
      */
     public InputStream getOrgTheme(String themeId, String organization) throws APIManagementException {
         InputStream tenantThemeContent = null;
@@ -16805,7 +16806,7 @@ public class ApiMgtDAO {
                 tenantThemeContent = resultSet.getBinaryStream("ARTIFACT");
             }
         } catch (SQLException e) {
-            handleError("Failed to get organization theme for tenant " + organization, e);
+            handleException("Failed to get organization theme for tenant " + organization, e);
         }
         return tenantThemeContent;
     }
@@ -16813,8 +16814,9 @@ public class ApiMgtDAO {
     /**
      * Gets org theme array.
      *
-     * @param organization the organization name
-     * @throws APIManagementException if a database error occurs
+     * @param organization Organization name.
+     * @return Hash map of publish unpublish state and theme IDs.
+     * @throws APIManagementException If a database error occurs.
      */
     public Map<String, String>  getOrgThemes(String organization) throws APIManagementException {
         Map<String, String> themeMap = new HashMap<>();
@@ -16829,11 +16831,18 @@ public class ApiMgtDAO {
                 }
             }
         } catch (SQLException e) {
-            handleError("Failed to get organization theme array for " + organization, e);
+            handleException("Failed to get organization theme array for " + organization, e);
         }
         return themeMap;
     }
 
+    /**
+     * Check whether Organization is available in the AM_DEVPORTAL_ORG_CONTENT Table.
+     *
+     * @param connection   DB connection.
+     * @param organization Organization name.
+     * @return Boolean of organization availability.
+     */
     private boolean isOrganizationExist(Connection connection, String organization) throws SQLException {
         String query = "SELECT COUNT(*) FROM AM_DEVPORTAL_ORG_CONTENT WHERE ORGANIZATION = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -16847,6 +16856,13 @@ public class ApiMgtDAO {
         return false;
     }
 
+    /**
+     * Check whether the drafted theme is available for the organization.
+     *
+     * @param connection   DB connection.
+     * @param organization Organization name.
+     * @return Boolean of draft theme availability.
+     */
     private boolean isDraftedOrgThemeExist(Connection connection, String organization) throws SQLException {
         String query = "SELECT DRAFTED_ARTIFACT FROM AM_DEVPORTAL_ORG_CONTENT WHERE ORGANIZATION = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -16857,6 +16873,13 @@ public class ApiMgtDAO {
         }
     }
 
+    /**
+     * Get drafted artifact ID.
+     *
+     * @param connection   DB connection.
+     * @param organization Organization name.
+     * @return String of drafted content ID.
+     */
     private String getDraftedArtifactForOrg(Connection connection, String organization) throws SQLException {
         String query = "SELECT DRAFTED_ARTIFACT FROM AM_DEVPORTAL_ORG_CONTENT WHERE ORGANIZATION = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -16870,6 +16893,12 @@ public class ApiMgtDAO {
         return null;
     }
 
+    /**
+     * Update drafted artifact ID in AM_DEVPORTAL_ORG_CONTENT table.
+     *
+     * @param connection   DB connection.
+     * @param organization Organization name.
+     */
     private void updateDraftedArtifactForOrg(Connection connection, String organization, String artifactUUID) throws SQLException {
         String query = "UPDATE AM_DEVPORTAL_ORG_CONTENT SET DRAFTED_ARTIFACT = ? WHERE ORGANIZATION = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -16879,6 +16908,12 @@ public class ApiMgtDAO {
         }
     }
 
+    /**
+     * Update published artifact ID in AM_DEVPORTAL_ORG_CONTENT table.
+     *
+     * @param connection   DB connection.
+     * @param organization Organization name.
+     */
     private void updatePublishedArtifactForOrg(Connection connection, String organization, String artifactUUID) throws SQLException {
         String query = "UPDATE AM_DEVPORTAL_ORG_CONTENT SET PUBLISHED_ARTIFACT = ? WHERE ORGANIZATION = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -16888,6 +16923,13 @@ public class ApiMgtDAO {
         }
     }
 
+    /**
+     * Get published artifact ID.
+     *
+     * @param connection   DB connection.
+     * @param organization Organization name.
+     * @return String of published artifact content ID.
+     */
     private String getPublishedArtifactForOrg(Connection connection, String organization) throws SQLException {
         String query = "SELECT PUBLISHED_ARTIFACT FROM AM_DEVPORTAL_ORG_CONTENT WHERE ORGANIZATION = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -16901,6 +16943,14 @@ public class ApiMgtDAO {
         return null;
     }
 
+    /**
+     * Add artifact to AM_ARTIFACT Table.
+     *
+     * @param connection   DB connection.
+     * @param themeContent Theme content.
+     * @param artifactType Artifact's type.
+     * @return String of artifact's ID.
+     */
     private String addArtifact(Connection connection, InputStream themeContent, String artifactType) throws SQLException {
         String id = UUID.randomUUID().toString();
         String query = "INSERT INTO AM_ARTIFACT (UUID, ARTIFACT, TYPE) VALUES (?, ?, ?)";
@@ -16913,6 +16963,13 @@ public class ApiMgtDAO {
         }
     }
 
+    /**
+     * Get artifact content from AM_ARTIFACT Table.
+     *
+     * @param connection DB connection.
+     * @param artifactId Artifact's ID.
+     * @return Artifact content.
+     */
     private InputStream getArtifactContent(Connection connection, String artifactId) throws SQLException {
         String query = "SELECT ARTIFACT FROM AM_ARTIFACT WHERE UUID = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -16926,6 +16983,12 @@ public class ApiMgtDAO {
         return null;
     }
 
+    /**
+     * Remove artifact from AM_ARTIFACT Table.
+     *
+     * @param connection DB connection.
+     * @param artifactId Artifact's ID.
+     */
     private void removeArtifact(Connection connection, String artifactId) throws SQLException {
         String query = "DELETE FROM AM_ARTIFACT WHERE UUID = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -16934,6 +16997,13 @@ public class ApiMgtDAO {
         }
     }
 
+    /**
+     * Insert a fresh Org with drafted artifact's ID to AM_DEVPORTAL_ORG_CONTENT.
+     *
+     * @param connection   DB connection.
+     * @param organization Organization name.
+     * @param artifactUUID Artifact's ID.
+     */
     private void insertNewOrgWithDraftedArtifact(Connection connection, String organization, String artifactUUID) throws SQLException {
         String query = "INSERT INTO AM_DEVPORTAL_ORG_CONTENT (ORGANIZATION, DRAFTED_ARTIFACT) VALUES (?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -16943,6 +17013,14 @@ public class ApiMgtDAO {
         }
     }
 
+    /**
+     * Check whether if a theme is available for the organization.
+     *
+     * @param connection   DB connection.
+     * @param organization Organization name.
+     * @param themeId      Theme content's ID.
+     * @return Boolean of the theme availability.
+     */
     private boolean isThemeUsedByOrg(Connection connection, String organization, String themeId) throws SQLException {
         String query = "SELECT COUNT(*) FROM AM_DEVPORTAL_ORG_CONTENT WHERE (DRAFTED_ARTIFACT = ? OR PUBLISHED_ARTIFACT = ?) AND ORGANIZATION = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -16958,7 +17036,13 @@ public class ApiMgtDAO {
         return false;
     }
 
-    private void removeOrgIfNoData(Connection connection, String organization, String themeId) throws SQLException {
+    /**
+     * Remove organization if there is no IDs for the organization.
+     *
+     * @param connection   DB connection.
+     * @param organization Organization name.
+     */
+    private void removeOrgIfNoData(Connection connection, String organization) throws SQLException {
         String checkQuery = "SELECT DRAFTED_ARTIFACT, PUBLISHED_ARTIFACT FROM AM_DEVPORTAL_ORG_CONTENT WHERE ORGANIZATION = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(checkQuery)) {
             preparedStatement.setString(1, organization);
@@ -16971,17 +17055,18 @@ public class ApiMgtDAO {
         }
     }
 
+    /**
+     * Remove organization.
+     *
+     * @param connection   DB connection.
+     * @param organization Organization name.
+     */
     private void removeOrg(Connection connection, String organization) throws SQLException {
         String query = "DELETE FROM AM_DEVPORTAL_ORG_CONTENT WHERE ORGANIZATION = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, organization);
             preparedStatement.executeUpdate();
         }
-    }
-
-    private void handleError(String message, Exception e) throws APIManagementException {
-        log.error(e.getMessage());
-        throw new APIManagementException(message, e);
     }
 
     /**
